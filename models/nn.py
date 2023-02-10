@@ -1,4 +1,5 @@
 import tensorflow as tf
+import tensorflow_addons as tfa
 
 # DO NOT REMOVE. used by code inside eval()
 import numpy as np  # noqa: F401
@@ -15,7 +16,7 @@ def get_activation(activation):
 
 
 def fully_connected_block(
-    units, activations, kernel_init='glorot_uniform', input_shape=None, output_shape=None, dropouts=None, name=None
+    units, activations, kernel_init='glorot_uniform', input_shape=None, output_shape=None, dropouts=None, use_spectral_norm=False, name=None
 ):
     assert len(units) == len(activations)
     if dropouts:
@@ -28,8 +29,10 @@ def fully_connected_block(
         args = dict(units=size, activation=act, kernel_initializer=kernel_init)
         if i == 0 and input_shape:
             args['input_shape'] = input_shape
-
-        layers.append(tf.keras.layers.Dense(**args))
+        if use_spectral_norm:
+            layers.append(tfa.layers.SpectralNormalization(tf.keras.layers.Dense(**args)))
+        else:
+            layers.append(tf.keras.layers.Dense(**args))
 
         if dropouts and dropouts[i]:
             layers.append(tf.keras.layers.Dropout(dropouts[i]))
@@ -115,6 +118,7 @@ def conv_block(
     input_shape=None,
     output_shape=None,
     dropouts=None,
+    use_spectral_norm=False,
     name=None,
 ):
     assert len(filters) == len(kernel_sizes) == len(paddings) == len(activations) == len(poolings)
@@ -128,8 +132,11 @@ def conv_block(
         args = dict(filters=nfilt, kernel_size=ksize, padding=padding, activation=act, kernel_initializer=kernel_init)
         if i == 0 and input_shape:
             args['input_shape'] = input_shape
-
-        layers.append(tf.keras.layers.Conv2D(**args))
+        
+        if use_spectral_norm:
+            layers.append(tfa.SpectralNormalization(tf.keras.layers.Conv2D(**args))
+        else:
+            layers.append(tf.keras.layers.Conv2D(**args))
 
         if dropouts and dropouts[i]:
             layers.append(tf.keras.layers.Dropout(dropouts[i]))
