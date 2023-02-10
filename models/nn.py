@@ -134,7 +134,7 @@ def conv_block(
             args['input_shape'] = input_shape
         
         if use_spectral_norm:
-            layers.append(tfa.SpectralNormalization(tf.keras.layers.Conv2D(**args))
+            layers.append(tfa.layers.SpectralNormalization(tf.keras.layers.Conv2D(**args)))
         else:
             layers.append(tf.keras.layers.Conv2D(**args))
 
