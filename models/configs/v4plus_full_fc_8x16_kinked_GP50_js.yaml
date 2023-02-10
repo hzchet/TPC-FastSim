@@ -4,7 +4,7 @@ lr: 1.e-4
 lr_schedule_rate: 0.999
 
 num_disc_updates: 8
-gp_lambda: 50.
+gp_lambda: 0.
 gpdata_lambda: 0.
 cramer: False
 js: True
@@ -71,6 +71,7 @@ architecture:
                 input_shape: NULL
                 output_shape: [64,]
                 dropouts: [0.02, 0.02, 0.02, 0.02, 0.02, 0.02]
+                use_spectral_norm: True
                 name: discriminator_conv_block
         - block_type: 'fully_connected'
           arguments:
@@ -79,4 +80,5 @@ architecture:
             kernel_init: 'glorot_uniform'
             input_shape: [71,]
             output_shape: NULL
+            use_spectral_norm: True
             name: 'discriminator_head'
